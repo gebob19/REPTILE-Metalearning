@@ -69,6 +69,7 @@ class OmniLoader(data.DataLoader):
     
     k_shot: model will be meta trained on k examples of each class 
     n_way: model will classify with n possible classes 
+    n_test: number of examples per class to be tested on 
     dataset: OmniClassDataset instance
     kwargs: Pytorch dataloader specific parameters
     
@@ -89,6 +90,7 @@ class OmniLoader(data.DataLoader):
 
     dataloader = OmniLoader(k_shot=k_shot, 
                             n_way=n_way,
+                            n_test=n_test,
                             dataset=dataset,
                             shuffle=True,
                             pin_memory=True,
@@ -98,9 +100,10 @@ class OmniLoader(data.DataLoader):
         break
     
     """
-    def __init__(self, k_shot, n_way, dataset, **kwargs):
+    def __init__(self, k_shot, n_way, n_test, dataset, **kwargs):
         self.n_way = n_way
         self.k_shot = k_shot
+        self.n_test = n_test
         self.base_dl = data.DataLoader(dataset, batch_size=n_way, **kwargs)
         
     def D_to_xy(self, D):
@@ -125,7 +128,7 @@ class OmniLoader(data.DataLoader):
             # k of each class
             meta_train = D[:, :self.k_shot]
             # test on 3 of each class
-            meta_test = D[:, self.k_shot:min(self.k_shot+3, D.size(1))]
+            meta_test = D[:, self.k_shot:min(self.k_shot+self.n_test, D.size(1))]
             
             train_x, train_y = self.D_to_xy(meta_train)
             test_x, test_y = self.D_to_xy(meta_test)
