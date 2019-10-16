@@ -100,39 +100,65 @@ class OmniLoader(data.DataLoader):
         break
     
     """
-    def __init__(self, k_shot, n_way, n_test, dataset, **kwargs):
+    def __init__(self, k_shot, n_way, n_test, dataset, shuffle, **kwargs):
         self.n_way = n_way
         self.k_shot = k_shot
         self.n_test = n_test
-        self.base_dl = data.DataLoader(dataset, batch_size=n_way, **kwargs)
-        
+        self.shuffle = shuffle
+        self.base_dl = data.DataLoader(dataset, batch_size=n_way, shuffle=shuffle, **kwargs)
+    
+    def shuffle_set(self, x, y):
+        shuffle_idxs = np.random.permutation(x.size(0))
+        x = x[shuffle_idxs]
+        y = y[shuffle_idxs]
+        return x, y 
+
     def D_to_xy(self, D):
         """
         Converts dataset object D to (*, 1, 28, 28) with corresponding labels.
         """
         # Train: n * k_shot 
         # Test:  n * (n_examples - k_shot)
-        x = D.contiguous().view((D.size(0) * D.size(1), 1, 28, 28))
-        y = np.array([[i] * D.size(1) for i in range(self.n_way)]).flatten()
+        x = D.contiguous().view((D.size(0) * D.size(1), 1, 28, 28)).to(device)
+        y = torch.from_numpy(np.array([[i] * D.size(1) for i in range(self.n_way)]).flatten()).to(device)
         
         # shuffle 
-        shuffle_idxs = np.random.permutation(x.size(0))
-        x = x[shuffle_idxs].to(device)
-        y = torch.from_numpy(y[shuffle_idxs]).to(device)
+        if self.shuffle: 
+            x, y = self.shuffle_set(x, y)
         
         return x, y
         
     def __iter__(self):
-        # D is (n_way, n_examples, 1, 28, 28)
-        for D in self.base_dl:
-            # k of each class
-            meta_train = D[:, :self.k_shot]
-            # test on 3 of each class
-            meta_test = D[:, self.k_shot:min(self.k_shot+self.n_test, D.size(1))]
+        for task_data in self.base_dl:
+            x, y = self.D_to_xy(task_data)
+            yield x, y
+
+
+
+        # idx = self.k_shot + self.n_test
+        # for batch_i in range(min(self.batch_size, self.dataset.size(1) // idx)): 
+        #     batch = self.dataset[:, batch_i * idx: (batch_i+1) * idx]
             
-            train_x, train_y = self.D_to_xy(meta_train)
-            test_x, test_y = self.D_to_xy(meta_test)
+        #     # (n_way, {k_shot OR n_test}, C, H, W)
+        #     meta_train = batch[:, :self.k_shot]
+        #     meta_test = batch[:, self.k_shot:]
+
+        #     train_x, train_y = self.D_to_xy(meta_train)
+        #     test_x, test_y = self.D_to_xy(meta_test)
+            
+        #     yield (train_x, train_y), (test_x, test_y)
+
+
+        # # D is (n_way, n_examples, 1, 28, 28)
+        # for D in self.base_dl:
+        #     # k of each class
+        #     meta_train = D[:, :self.k_shot]
+        #     # test on 3 of each class
+        #     meta_test = D[:, self.k_shot:min(self.k_shot+self.n_test, D.size(1))]
+            
+        #     train_x, train_y = self.D_to_xy(meta_train)
+        #     test_x, test_y = self.D_to_xy(meta_test)
         
-            yield (train_x, train_y), (test_x, test_y)
+        #     yield (train_x, train_y), (test_x, test_y)
 
 
