@@ -100,10 +100,9 @@ class OmniLoader(data.DataLoader):
         break
     
     """
-    def __init__(self, k_shot, n_way, n_test, dataset, shuffle, **kwargs):
+    def __init__(self, k_shot, n_way, dataset, shuffle, **kwargs):
         self.n_way = n_way
         self.k_shot = k_shot
-        self.n_test = n_test
         self.shuffle = shuffle
         self.base_dl = data.DataLoader(dataset, batch_size=n_way, shuffle=shuffle, **kwargs)
     
