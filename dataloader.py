@@ -131,15 +131,15 @@ class OmniLoader(data.DataLoader):
     def __iter__(self):
         # (n_way, n_examples, 1, 28, 28)
         for task_data in self.base_dl:
-            x, y = self.D_to_xy(task_data[:, :self.k_shot])
+            x_train, y_train = self.D_to_xy(task_data[:, :self.k_shot])
 
-            k_test_data = task_data[:, k_shot:]
+            k_test_data = task_data[:, self.k_shot:]
             k_test_labels = torch.tensor(np.array([[i] * k_test_data.size(1) for i in range(k_test_data.size(0))]))
             
             idx = np.random.randint(low=0, high=k_test_labels.reshape(-1).size(0), size=(self.n_test,))
             x_test, y_test = k_test_data.reshape(-1, 1, 28, 28)[idx], k_test_labels.reshape(-1)[idx]
             
-            yield (x, y), (x_test, y_test)
+            yield (x_train, y_train), (x_test, y_test)
 
 
 
