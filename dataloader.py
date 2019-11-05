@@ -139,7 +139,7 @@ class OmniLoader(data.DataLoader):
             idx = np.random.randint(low=0, high=k_test_labels.reshape(-1).size(0), size=(self.n_test,))
             x_test, y_test = k_test_data.reshape(-1, 1, 28, 28)[idx], k_test_labels.reshape(-1)[idx]
             
-            yield (x_train, y_train), (x_test, y_test)
+            yield (x_train.to(device), y_train.to(device)), (x_test.to(device), y_test.to(device))
 
 
 
