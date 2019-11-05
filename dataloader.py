@@ -134,39 +134,13 @@ class OmniLoader(data.DataLoader):
             x_train, y_train = self.D_to_xy(task_data[:, :self.k_shot])
 
             k_test_data = task_data[:, self.k_shot:]
-            k_test_labels = torch.tensor(np.array([[i] * k_test_data.size(1) for i in range(k_test_data.size(0))]))
+            # shuffle class examples & take n_test examples for each 
+            k_test_data = k_test_data[:, torch.randperm(k_test_data.size(1))][:, :self.n_test]
+
+            k_test_labels = torch.tensor(np.array([[i] * self.n_test for i in range(k_test_data.size(0))]))
             
-            idx = np.random.randint(low=0, high=k_test_labels.reshape(-1).size(0), size=(self.n_test,))
+            idx = torch.randperm(self.n_way * self.n_test)
             x_test, y_test = k_test_data.reshape(-1, 1, 28, 28)[idx], k_test_labels.reshape(-1)[idx]
             
             yield (x_train.to(device), y_train.to(device)), (x_test.to(device), y_test.to(device))
-
-
-
-        # idx = self.k_shot + self.n_test
-        # for batch_i in range(min(self.batch_size, self.dataset.size(1) // idx)): 
-        #     batch = self.dataset[:, batch_i * idx: (batch_i+1) * idx]
-            
-        #     # (n_way, {k_shot OR n_test}, C, H, W)
-        #     meta_train = batch[:, :self.k_shot]
-        #     meta_test = batch[:, self.k_shot:]
-
-        #     train_x, train_y = self.D_to_xy(meta_train)
-        #     test_x, test_y = self.D_to_xy(meta_test)
-            
-        #     yield (train_x, train_y), (test_x, test_y)
-
-
-        # # D is (n_way, n_examples, 1, 28, 28)
-        # for D in self.base_dl:
-        #     # k of each class
-        #     meta_train = D[:, :self.k_shot]
-        #     # test on 3 of each class
-        #     meta_test = D[:, self.k_shot:min(self.k_shot+self.n_test, D.size(1))]
-            
-        #     train_x, train_y = self.D_to_xy(meta_train)
-        #     test_x, test_y = self.D_to_xy(meta_test)
-        
-        #     yield (train_x, train_y), (test_x, test_y)
-
 
