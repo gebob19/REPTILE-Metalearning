@@ -1,5 +1,7 @@
 import torch.nn as nn 
+import torch 
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class OmniglotModel(nn.Module):
     def __init__(self, n_classes):

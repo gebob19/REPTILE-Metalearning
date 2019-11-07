@@ -23,7 +23,6 @@ base = Path('data/omniglot/')
 data_dir = base/'data'
 split_dir = base/'splits'/'vinyals'
 
-
 # https://github.com/gabrielhuang/reptile-pytorch/blob/master/train_omniglot.py
 def make_inf(D):
     while True:
@@ -100,8 +99,11 @@ def _mini_batches(x, y, batch_size, num_batches):
 def main():
     debug = True
 
+    params = way5_params
+    param_name = '5way5shot'
+
     # init model + optimzers + loss 
-    model = Model(n_classes=params['n_way']).to(device)
+    model = OmniglotModel(n_classes=params['n_way']).to(device)
     outter_loop_optim = torch.optim.SGD(model.parameters(), lr=params['outer_lr'])
     loss_fcn = nn.CrossEntropyLoss()
     optim_state = None 
@@ -133,7 +135,6 @@ def main():
         # sample minidataset 
         n_correct, n_examples, loss = 0, 0, 0
         for task_i, ((x, y), (x_test, y_test)) in enumerate(train_loader):
-
             # new model 
             new_model = model.clone()
             inner_loop_optim = get_optimizer(new_model, params['inner_lr'], optim_state)
@@ -141,10 +142,10 @@ def main():
             # train on batches of the minidataset
             new_model.train()
             for xb, yb in _mini_batches(x, y, params['inner_batchsize'], params['inner_iterations']):
-            take_n_steps(loss_fcn, 
-                            inner_loop_optim,
-                            new_model,
-                            xb, yb, 1)
+                take_n_steps(loss_fcn, 
+                                inner_loop_optim,
+                                new_model,
+                                xb, yb, 1)
 
             # record optimizer state 
             optim_state = inner_loop_optim.state_dict()
@@ -165,7 +166,7 @@ def main():
             n_examples += x_test.size(0)
 
             if task_i == params['meta_batchsize'] - 1:
-            break
+                break
 
         writer.add_scalar('train_loss', loss / params['meta_batchsize'], outer_i)
         writer.add_scalar('train_acc', n_correct / n_examples, outer_i)
@@ -205,24 +206,23 @@ def main():
     n_correct = 0
     n_examples = 0
     for task_i, ((x, y), (x_test, y_test)) in tqdm(enumerate(test_loader)):
-    new_model = model.clone()
-    inner_loop_optim = get_optimizer(new_model, params['inner_lr'])
+        new_model = model.clone()
+        inner_loop_optim = get_optimizer(new_model, params['inner_lr'])
 
-    for xb, yb in _mini_batches(x, y, params['eval_inner_batch'], params['eval_inner_iterations']):
-        take_n_steps(loss_fcn, 
-                    inner_loop_optim,
-                    new_model,
-                    xb, yb, 1)            
+        for xb, yb in _mini_batches(x, y, params['eval_inner_batch'], params['eval_inner_iterations']):
+            take_n_steps(loss_fcn, 
+                        inner_loop_optim,
+                        new_model,
+                        xb, yb, 1)            
 
-    # validation metrics
-    y_preds = new_model(x_test)
-    loss = loss_fcn(y_preds, y_test)
-    n_correct += (y_preds.argmax(-1) == y_test).sum().float()
-    n_examples += x_test.size(0)
+        # validation metrics
+        y_preds = new_model(x_test)
+        loss = loss_fcn(y_preds, y_test)
+        n_correct += (y_preds.argmax(-1) == y_test).sum().float()
+        n_examples += x_test.size(0)
 
     accuracy = n_correct / n_examples
     print("Test Accuracy: {}".format(accuracy))
-
     writer.add_scalar('test_acc', accuracy, 0)
     writer.close()
     print('Summary writer closed...')
