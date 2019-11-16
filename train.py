@@ -208,7 +208,7 @@ def main():
     n_examples = 0
     for task_i, ((x, y), (x_test, y_test)) in tqdm(enumerate(test_loader)):
         new_model = model.clone()
-        inner_loop_optim = get_optimizer(new_model, params['inner_lr'])
+        inner_loop_optim = get_optimizer(new_model, params['inner_lr'], optim_state)
 
         new_model.train()
         for xb, yb in _mini_batches(x, y, params['eval_inner_batch'], params['eval_inner_iterations']):
@@ -233,8 +233,6 @@ def main():
 
     print('saving model to {} ...'.format('model_saves/'+model_name))
     torch.save(model.state_dict(), 'model_saves/'+model_name)
-
-
 
 if __name__ == '__main__':
     main()
