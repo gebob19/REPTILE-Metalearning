@@ -12,6 +12,7 @@ way5_params = {
     'outer_lr': 1.0,
     'outer_iterations': 100000,
     'meta_batchsize': 5,
+    'metastep_final': 0,
     # evaluation params
     'eval_inner_iterations': 50,
     'eval_inner_batch': 5,
@@ -31,6 +32,7 @@ way20_params = {
     'outer_lr': 1.0,
     'outer_iterations': 200000,
     'meta_batchsize': 5,
+    'metastep_final': 0,
     # evaluation params
     'eval_inner_iterations': 50,
     'eval_inner_batch': 10,

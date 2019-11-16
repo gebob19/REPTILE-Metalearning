@@ -43,5 +43,7 @@ if [ ! -d data/omniglot ]; then
     rm $filename
 
     mv vinyals data/omniglot/splits/
+
+    mkdir model_saves/
 fi
 

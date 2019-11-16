@@ -23,6 +23,16 @@ base = Path('data/omniglot/')
 data_dir = base/'data'
 split_dir = base/'splits'/'vinyals'
 
+# from https://github.com/openai/supervised-reptile/blob/master/supervised_reptile/args.py
+import argparse
+def arg_parser():
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--seed', help='random seed', default=0, type=int)
+    parser.add_argument('--n_iterations', default=5000, type=int)
+    parser.add_argument('--name', default='default', type=str)
+    parser.add_argument('--debug', action='store_true', default=False)
+    return parser.parse_args()
+
 # https://github.com/gabrielhuang/reptile-pytorch/blob/master/train_omniglot.py
 def make_inf(D):
     while True:
@@ -99,8 +109,9 @@ def _mini_batches(x, y, batch_size, num_batches):
 def main():
     debug = True
 
+    args = arg_parser()
     params = way5_params
-    param_name = '5way5shot'
+    param_name = args.name
 
     # init model + optimzers + loss 
     model = OmniglotModel(n_classes=params['n_way']).to(device)
@@ -113,9 +124,8 @@ def main():
     writer = SummaryWriter(comment=model_name)
 
     # debugging parameters
-    if debug: 
-        # params['outer_iterations'] = 1500
-        params['metastep_final'] = 0
+    if args.debug: 
+        params['outer_iterations'] = args.n_iterations
 
     train_loader = get_dataloader('train', params['train_shots'], params['n_way'])
 
@@ -125,7 +135,6 @@ def main():
 
     for outer_i in tqdm(range(params['outer_iterations'])):
         outter_loop_optim.zero_grad()
-        # if debug and outer_i == 5000: break
 
         # lr annealing 
         frac_done = outer_i / params['outer_iterations']
@@ -215,12 +224,17 @@ def main():
         n_correct += (y_preds.argmax(-1) == y_test).sum().float()
         n_examples += x_test.size(0)
 
+        break
+
     accuracy = n_correct / n_examples
     print("Accuracy: {}".format(accuracy))
 
     writer.add_scalar('test_acc', accuracy, 0)
     writer.close()
     print('Summary writer closed...')
+
+    print('saving model to {} ...'.format('model_saves/'+model_name))
+    torch.save(model.state_dict(), 'model_saves/'+model_name)
 
 
 
