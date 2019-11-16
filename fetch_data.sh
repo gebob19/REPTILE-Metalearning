@@ -42,14 +42,6 @@ if [ ! -d data/omniglot ]; then
     unzip $filename
     rm $filename
 
-    # download training split run from source code
-    export fileid=1bbyprI8HiUCZorpN0NN5r7nUh-hIBa6I
-    export filename=train.zip
-
-    curl -L -o $filename 'https://docs.google.com/uc?export=download&id='$fileid
-    unzip $filename
-    rm $filename
-
     mv vinyals data/omniglot/splits/
 fi
 
