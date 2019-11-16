@@ -1,8 +1,10 @@
+
 way5_params = {
     'n_way': 5,
-    'k_shots': 5,
+    'k_shots': 1,
     'n_test': 1,
     # inner loop parameters
+    'train_shots': 10,
     'inner_lr': 0.001,
     'inner_batchsize': 10,
     'inner_iterations': 5,

@@ -109,24 +109,27 @@ def main():
     optim_state = None 
 
     # setup
-    model_name = 'param_name={}-nway={}-kshot={}-ntest={}'.format(param_name, params['n_way'], params['k_shots'], params['n_test'])
+    model_name = 'mname={}-nway={}-kshot={}-ntest={}'.format(param_name, params['n_way'], params['k_shots'], params['n_test'])
     writer = SummaryWriter(comment=model_name)
 
     # debugging parameters
     if debug: 
-        params['outer_iterations'] = 1000
+        # params['outer_iterations'] = 1500
+        params['metastep_final'] = 0
 
-    # init dataloaders 
-    train_loader = get_dataloader('train', params['k_shots'], params['n_way'])
+    train_loader = get_dataloader('train', params['train_shots'], params['n_way'])
+
+    train_eval_loader = get_dataloader('train', params['k_shots'], params['n_way'])
     val_loader = get_dataloader('val', params['k_shots'], params['n_way'])
     test_loader = get_dataloader('test', params['k_shots'], params['n_way'], inf=False)
 
     for outer_i in tqdm(range(params['outer_iterations'])):
         outter_loop_optim.zero_grad()
+        # if debug and outer_i == 5000: break
 
         # lr annealing 
         frac_done = outer_i / params['outer_iterations']
-        cur_meta_step_size = frac_done * 1e-9 + (1 - frac_done) * params['outer_lr']
+        cur_meta_step_size = frac_done * params['metastep_final'] + (1 - frac_done) * params['outer_lr']
 
         # update optimizer step size 
         for param_group in outter_loop_optim.param_groups:
@@ -134,7 +137,8 @@ def main():
 
         # sample minidataset 
         n_correct, n_examples, loss = 0, 0, 0
-        for task_i, ((x, y), (x_test, y_test)) in enumerate(train_loader):
+        new_vars = []
+        for task_i, ((x, y), _) in enumerate(train_loader):
             # new model 
             new_model = model.clone()
             inner_loop_optim = get_optimizer(new_model, params['inner_lr'], optim_state)
@@ -157,50 +161,38 @@ def main():
                 # invert loss eqn. to use descent optimization
                 w.grad.data.add_(w.data - w_t.data)
 
-            # record metrics
-            new_model.eval()
-            y_preds = new_model(x_test)
-            loss_val = loss_fcn(y_preds, y_test)
-            loss += loss_val
-            n_correct += (y_preds.argmax(-1) == y_test).sum().float()
-            n_examples += x_test.size(0)
-
             if task_i == params['meta_batchsize'] - 1:
                 break
-
-        writer.add_scalar('train_loss', loss / params['meta_batchsize'], outer_i)
-        writer.add_scalar('train_acc', n_correct / n_examples, outer_i)
-
-        # avg_vars = average_vars(new_vars)
-        # model.load_state_dict(interpolate_vars(model.state_dict(), avg_vars, cur_meta_step_size))
 
         # update model with avg over mini batches 
         for w in model.parameters():
             w.grad.data.div_(params['meta_batchsize'])
         outter_loop_optim.step()
 
-        # validation
+        # evaluation
         if outer_i % params['validation_rate'] == 0:
-            for task_i, ((x, y), (x_test, y_test)) in enumerate(val_loader):
-                new_model = model.clone()
-                # dont restore optim state - info leakage 
-                inner_loop_optim = get_optimizer(new_model, params['inner_lr'])
+            for loader, name in zip([train_eval_loader, val_loader], ['train', 'val']):
+                for task_i, ((x, y), (x_test, y_test)) in enumerate(loader):
+                    new_model = model.clone()
+                    # dont restore optim state - info leakage 
+                    inner_loop_optim = get_optimizer(new_model, params['inner_lr'])
 
-                for xb, yb in _mini_batches(x, y, params['eval_inner_batch'], params['eval_inner_iterations']):
-                    take_n_steps(loss_fcn, 
-                                inner_loop_optim,
-                                new_model,
-                                xb, yb, 1)            
-                
-                # validation metrics
-                y_preds = new_model(x_test)
-                loss = loss_fcn(y_preds, y_test)
-                accuracy = (y_preds.argmax(-1) == y_test).float().mean()
-                                    
-                writer.add_scalar('val_loss', loss, outer_i)
-                writer.add_scalar('val_acc', accuracy, outer_i)
-                
-                break
+                    new_model.train()
+                    for xb, yb in _mini_batches(x, y, params['eval_inner_batch'], params['eval_inner_iterations']):
+                        take_n_steps(loss_fcn, 
+                                    inner_loop_optim,
+                                    new_model,
+                                    xb, yb, 1)
+                    
+                    # validation metrics
+                    new_model.eval()
+                    y_preds = new_model(x_test)
+                    loss = loss_fcn(y_preds, y_test)
+                    accuracy = (y_preds.argmax(-1) == y_test).float().mean()
+                                        
+                    writer.add_scalar('{}_loss'.format(name), loss, outer_i)
+                    writer.add_scalar('{}_acc'.format(name), accuracy, outer_i)
+                    break
 
     print('testing...')
     n_correct = 0
@@ -209,20 +201,23 @@ def main():
         new_model = model.clone()
         inner_loop_optim = get_optimizer(new_model, params['inner_lr'])
 
+        new_model.train()
         for xb, yb in _mini_batches(x, y, params['eval_inner_batch'], params['eval_inner_iterations']):
             take_n_steps(loss_fcn, 
                         inner_loop_optim,
                         new_model,
-                        xb, yb, 1)            
+                        xb, yb, 1)
 
         # validation metrics
+        new_model.eval()
         y_preds = new_model(x_test)
         loss = loss_fcn(y_preds, y_test)
         n_correct += (y_preds.argmax(-1) == y_test).sum().float()
         n_examples += x_test.size(0)
 
     accuracy = n_correct / n_examples
-    print("Test Accuracy: {}".format(accuracy))
+    print("Accuracy: {}".format(accuracy))
+
     writer.add_scalar('test_acc', accuracy, 0)
     writer.close()
     print('Summary writer closed...')
