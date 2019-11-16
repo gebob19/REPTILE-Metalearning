@@ -224,8 +224,6 @@ def main():
         n_correct += (y_preds.argmax(-1) == y_test).sum().float()
         n_examples += x_test.size(0)
 
-        break
-
     accuracy = n_correct / n_examples
     print("Accuracy: {}".format(accuracy))
 
