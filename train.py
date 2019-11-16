@@ -184,7 +184,7 @@ def main():
                 for task_i, ((x, y), (x_test, y_test)) in enumerate(loader):
                     new_model = model.clone()
                     # dont restore optim state - info leakage 
-                    inner_loop_optim = get_optimizer(new_model, params['inner_lr'])
+                    inner_loop_optim = get_optimizer(new_model, params['inner_lr'], optim_state)
 
                     new_model.train()
                     for xb, yb in _mini_batches(x, y, params['eval_inner_batch'], params['eval_inner_iterations']):
