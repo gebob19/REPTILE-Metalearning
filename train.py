@@ -252,7 +252,7 @@ def main():
     writer.close()
     print('Summary writer closed...')
 
-    if not path.exists('model_saves/'+model_name):
+    if path.exists('model_saves/'+model_name):
         model_name = model_name + str(np.random.randint(100000))
 
     print('saving model to {} ...'.format('model_saves/'+model_name))
