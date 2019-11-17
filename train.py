@@ -30,7 +30,13 @@ def arg_parser():
     parser.add_argument('--seed', help='random seed', default=0, type=int)
     parser.add_argument('--n_iterations', default=5000, type=int)
     parser.add_argument('--name', default='default', type=str)
+    
+    parser.add_argument('--load', action='store_true', default=False)
+    parser.add_argument('--path', default='default', type=str)
+
     parser.add_argument('--debug', action='store_true', default=False)
+
+    parser.add_argument('--test', action='store_true', default=False)
     return parser.parse_args()
 
 # https://github.com/gabrielhuang/reptile-pytorch/blob/master/train_omniglot.py
@@ -127,6 +133,12 @@ def main():
     if args.debug: 
         params['outer_iterations'] = args.n_iterations
 
+    if args.load:
+        model.load_state_dict(torch.load(args.path, map_location=device))
+
+    if args.test: 
+        params['outer_iterations'] = 0
+
     train_loader = get_dataloader('train', params['train_shots'], params['n_way'])
 
     train_eval_loader = get_dataloader('train', params['k_shots'], params['n_way'])
@@ -134,6 +146,7 @@ def main():
     test_loader = get_dataloader('test', params['k_shots'], params['n_way'], inf=False)
 
     for outer_i in tqdm(range(params['outer_iterations'])):
+
         outter_loop_optim.zero_grad()
 
         # lr annealing 
@@ -183,7 +196,6 @@ def main():
             for loader, name in zip([train_eval_loader, val_loader], ['train', 'val']):
                 for task_i, ((x, y), (x_test, y_test)) in enumerate(loader):
                     new_model = model.clone()
-                    # dont restore optim state - info leakage 
                     inner_loop_optim = get_optimizer(new_model, params['inner_lr'], optim_state)
 
                     new_model.train()
