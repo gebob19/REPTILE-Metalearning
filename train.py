@@ -136,8 +136,11 @@ def main():
         params['outer_iterations'] = args.n_iterations
 
     if args.load:
-        model.load_state_dict(torch.load(args.path, map_location=device))
-        optim_state = torch.load(args.path+'_optim', map_location=device)
+        try:
+            model.load_state_dict(torch.load(args.path, map_location=device))
+            optim_state = torch.load(args.path+'_optim', map_location=device)
+        except Exception:
+            print('could not load full model...')
 
     if args.test: 
         params['outer_iterations'] = 0
