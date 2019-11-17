@@ -205,6 +205,9 @@ def main():
                                     new_model,
                                     xb, yb, 1)
                     
+                    # record optimizer state 
+                    optim_state = inner_loop_optim.state_dict()
+
                     # validation metrics
                     new_model.eval()
                     y_preds = new_model(x_test)
@@ -220,7 +223,7 @@ def main():
     n_examples = 0
     for task_i, ((x, y), (x_test, y_test)) in tqdm(enumerate(test_loader)):
         new_model = model.clone()
-        inner_loop_optim = get_optimizer(new_model, params['inner_lr'])
+        inner_loop_optim = get_optimizer(new_model, params['inner_lr'], optim_state)
 
         new_model.train()
         for xb, yb in _mini_batches(x, y, params['eval_inner_batch'], params['eval_inner_iterations']):
@@ -228,6 +231,9 @@ def main():
                         inner_loop_optim,
                         new_model,
                         xb, yb, 1)
+
+        # record optimizer state 
+        optim_state = inner_loop_optim.state_dict()
 
         # validation metrics
         new_model.eval()
@@ -245,6 +251,7 @@ def main():
 
     print('saving model to {} ...'.format('model_saves/'+model_name))
     torch.save(model.state_dict(), 'model_saves/'+model_name)
+    torch.save(inner_loop_optim.state_dict(), 'model_saves/'+model_name+'_optim')
 
 if __name__ == '__main__':
     main()
