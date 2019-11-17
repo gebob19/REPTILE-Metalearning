@@ -145,6 +145,10 @@ def main():
     if args.test: 
         params['outer_iterations'] = 0
 
+    # dont overwrite 
+    if path.exists('model_saves/'+model_name):
+        model_name = model_name + "_" +str(np.random.randint(100000))
+
     train_loader = get_dataloader('train', params['train_shots'], params['n_way'])
 
     train_eval_loader = get_dataloader('train', params['k_shots'], params['n_way'])
@@ -224,6 +228,8 @@ def main():
                     writer.add_scalar('{}_acc'.format(name), accuracy, outer_i)
                     break
 
+    torch.save(inner_loop_optim.state_dict(), 'model_saves/'+model_name+'_pretest_optim')
+
     print('testing...')
     n_correct = 0
     n_examples = 0
@@ -254,9 +260,6 @@ def main():
     writer.add_scalar('test_acc', accuracy, 0)
     writer.close()
     print('Summary writer closed...')
-
-    if path.exists('model_saves/'+model_name):
-        model_name = model_name + "_" +str(np.random.randint(100000))
  
     print('saving model to {} ...'.format('model_saves/'+model_name))
     torch.save(model.state_dict(), 'model_saves/'+model_name)
