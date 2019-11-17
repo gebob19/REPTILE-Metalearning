@@ -256,8 +256,8 @@ def main():
     print('Summary writer closed...')
 
     if path.exists('model_saves/'+model_name):
-        model_name = model_name + str(np.random.randint(100000))
-
+        model_name = model_name + "_" +str(np.random.randint(100000))
+ 
     print('saving model to {} ...'.format('model_saves/'+model_name))
     torch.save(model.state_dict(), 'model_saves/'+model_name)
     torch.save(inner_loop_optim.state_dict(), 'model_saves/'+model_name+'_optim')
