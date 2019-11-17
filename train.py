@@ -137,6 +137,7 @@ def main():
 
     if args.load:
         model.load_state_dict(torch.load(args.path, map_location=device))
+        optim_state = torch.load(args.path+'_optim', map_location=device)
 
     if args.test: 
         params['outer_iterations'] = 0
