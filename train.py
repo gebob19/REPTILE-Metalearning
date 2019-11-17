@@ -8,6 +8,7 @@ import torchvision.transforms as transforms
 import torchvision.models as models
 import matplotlib.pyplot as plt 
 
+from os import path
 from torch.autograd import Variable 
 from pathlib import Path
 from tqdm import tqdm
@@ -28,15 +29,16 @@ import argparse
 def arg_parser():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--seed', help='random seed', default=0, type=int)
-    parser.add_argument('--n_iterations', default=5000, type=int)
     parser.add_argument('--name', default='default', type=str)
     
     parser.add_argument('--load', action='store_true', default=False)
     parser.add_argument('--path', default='default', type=str)
+    parser.add_argument('--test', action='store_true', default=False)
+    parser.add_argument('--dsave', action='store_true', default=False)
 
     parser.add_argument('--debug', action='store_true', default=False)
+    parser.add_argument('--n_iterations', default=5000, type=int)
 
-    parser.add_argument('--test', action='store_true', default=False)
     return parser.parse_args()
 
 # https://github.com/gabrielhuang/reptile-pytorch/blob/master/train_omniglot.py
@@ -248,6 +250,9 @@ def main():
     writer.add_scalar('test_acc', accuracy, 0)
     writer.close()
     print('Summary writer closed...')
+
+    if not path.exists('model_saves/'+model_name):
+        model_name = model_name + str(np.random.randint(100000))
 
     print('saving model to {} ...'.format('model_saves/'+model_name))
     torch.save(model.state_dict(), 'model_saves/'+model_name)
