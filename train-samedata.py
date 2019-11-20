@@ -68,6 +68,7 @@ class Iter:
         self.count = 1
         
     def __iter__(self):
+        print(self.max, self.count) 
         return self 
 
     def __next__(self):
