@@ -101,6 +101,8 @@ def main():
     model_name = 'mname={}-nway={}-kshot={}-ntest={}'.format(param_name, params['n_way'], params['k_shots'], params['n_test'])
     writer = SummaryWriter(comment=model_name)
 
+    train_eval, val_eval = Iter('./evaluation/train/', '', False), Iter('./evaluation/val/', '', False)
+
     # debugging parameters
     if args.debug: 
         params['outer_iterations'] = args.n_iterations
@@ -167,7 +169,7 @@ def main():
 
         # evaluation
         if outer_i % params['validation_rate'] == 0:
-            for loader, name in zip([Iter('./evaluation/train/', '', False), Iter('./evaluation/val/', '', False)], ['train', 'val']):
+            for loader, name in zip([train_eval, val_eval], ['train', 'val']):
                 
                 for i, (meta_task_x, meta_task_y, test_x, test_y) in enumerate(loader):
                     new_model = model.clone()
@@ -196,6 +198,8 @@ def main():
                                         
                     writer.add_scalar('{}_loss'.format(name), loss, outer_i)
                     writer.add_scalar('{}_acc'.format(name), accuracy, outer_i)
+
+                    break
 
         break
 
