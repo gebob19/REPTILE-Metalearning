@@ -167,7 +167,7 @@ def main():
 
         # evaluation
         if outer_i % params['validation_rate'] == 0:
-            for loader, name in zip([Iter('./evaluation/', 'train/', False), Iter('./evaluation/', 'val/', False)], ['train', 'val']):
+            for loader, name in zip([Iter('./evaluation/train/', '', False), Iter('./evaluation/val/', '', False)], ['train', 'val']):
                 
                 for i, (meta_task_x, meta_task_y, test_x, test_y) in enumerate(loader):
                     new_model = model.clone()
@@ -206,7 +206,7 @@ def main():
     print('testing...')
     n_correct = 0
     n_examples = 0
-    for i, (meta_task_x, meta_task_y, test_x, test_y) in tqdm(enumerate(Iter('./evaluation/', 'test/', False))):
+    for i, (meta_task_x, meta_task_y, test_x, test_y) in tqdm(enumerate(Iter('./evaluation/test/', '', False))):
         new_model = model.clone()
         inner_loop_optim = get_optimizer(new_model, params['inner_lr'], optim_state)
 
