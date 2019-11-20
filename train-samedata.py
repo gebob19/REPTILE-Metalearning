@@ -196,12 +196,14 @@ def main():
                     writer.add_scalar('{}_loss'.format(name), loss, outer_i)
                     writer.add_scalar('{}_acc'.format(name), accuracy, outer_i)
 
+    print('saving model to {} ...'.format('model_saves/'+model_name))
+    torch.save(model.state_dict(), 'model_saves/'+model_name)
     torch.save(inner_loop_optim.state_dict(), 'model_saves/'+model_name+'_pretest_optim')
 
     print('testing...')
     n_correct = 0
     n_examples = 0
-    for i, (meta_task_x, meta_task_y, test_x, test_y) in enumerate(Iter('./evaluation/', 'test', False)):
+    for i, (meta_task_x, meta_task_y, test_x, test_y) in enumerate(Iter('./evaluation/', 'test/', False)):
         new_model = model.clone()
         inner_loop_optim = get_optimizer(new_model, params['inner_lr'], optim_state)
 
