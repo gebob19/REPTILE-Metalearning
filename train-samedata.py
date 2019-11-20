@@ -119,6 +119,7 @@ def main():
         model_name = model_name + "_" +str(np.random.randint(100000))
 
     for outer_i, (train_inputs, train_labels) in tqdm(enumerate(Iter('./train/', 'training', train=True))):
+        break
 
         outter_loop_optim.zero_grad()
 
@@ -203,7 +204,7 @@ def main():
     print('testing...')
     n_correct = 0
     n_examples = 0
-    for i, (meta_task_x, meta_task_y, test_x, test_y) in enumerate(Iter('./evaluation/', 'test/', False)):
+    for i, (meta_task_x, meta_task_y, test_x, test_y) in tqdm(enumerate(Iter('./evaluation/', 'test/', False))):
         new_model = model.clone()
         inner_loop_optim = get_optimizer(new_model, params['inner_lr'], optim_state)
 
