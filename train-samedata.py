@@ -201,8 +201,6 @@ def main():
 
                     break
 
-        break
-
     print('saving model to {} ...'.format('model_saves/'+model_name))
     torch.save(model.state_dict(), 'model_saves/'+model_name)
     torch.save(inner_loop_optim.state_dict(), 'model_saves/'+model_name+'_pretest_optim')
