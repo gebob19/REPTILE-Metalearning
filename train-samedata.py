@@ -119,7 +119,6 @@ def main():
         model_name = model_name + "_" +str(np.random.randint(100000))
 
     for outer_i, (train_inputs, train_labels) in tqdm(enumerate(Iter('./train/', 'training', train=True))):
-        break
 
         outter_loop_optim.zero_grad()
 
@@ -196,6 +195,8 @@ def main():
                                         
                     writer.add_scalar('{}_loss'.format(name), loss, outer_i)
                     writer.add_scalar('{}_acc'.format(name), accuracy, outer_i)
+
+        break
 
     print('saving model to {} ...'.format('model_saves/'+model_name))
     torch.save(model.state_dict(), 'model_saves/'+model_name)
