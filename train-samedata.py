@@ -222,6 +222,10 @@ def main():
         optim_state = inner_loop_optim.state_dict()
 
         # validation metrics
+        test_x = torch.tensor(np.array(test_x)).unsqueeze(1).to(device)
+        test_y = torch.tensor(np.array(list(test_y))).to(device)
+
+        # validation metrics
         new_model.eval()
         y_preds = new_model(test_x)
         loss = loss_fcn(y_preds, test_y)
