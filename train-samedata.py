@@ -184,7 +184,7 @@ def main():
                                     xb, yb, 1)
                     
                     # record optimizer state 
-                    optim_state = inner_loop_optim.state_dict()
+                    # optim_state = inner_loop_optim.state_dict()
 
                     # validation metrics
                     test_x = torch.tensor(np.array(test_x)).unsqueeze(1).to(device)
@@ -221,7 +221,7 @@ def main():
                         xb, yb, 1)
 
         # record optimizer state 
-        optim_state = inner_loop_optim.state_dict()
+        # optim_state = inner_loop_optim.state_dict()
 
         # validation metrics
         test_x = torch.tensor(np.array(test_x)).unsqueeze(1).to(device)
