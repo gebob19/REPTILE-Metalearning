@@ -216,7 +216,7 @@ def main():
                                     xb, yb, 1)
                     
                     # record optimizer state 
-                    optim_state = inner_loop_optim.state_dict()
+                    # optim_state = inner_loop_optim.state_dict()
 
                     # validation metrics
                     new_model.eval()
@@ -245,7 +245,7 @@ def main():
                         xb, yb, 1)
 
         # record optimizer state 
-        optim_state = inner_loop_optim.state_dict()
+        # optim_state = inner_loop_optim.state_dict()
 
         # validation metrics
         new_model.eval()

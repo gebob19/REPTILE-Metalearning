@@ -20,6 +20,22 @@ way5_params = {
     'validation_rate': 10
 }
 
+# python -u run_omniglot.py \
+#     --shots 1 \
+#     --inner-batch 10 \
+#     --inner-iters 5 \
+#     --meta-step 1 \
+#     --meta-batch 5 \
+#     --meta-iters 100000 \
+#     --eval-batch 5 \
+#     --eval-iters 50 \
+#     --learning-rate 0.001 \
+#     --meta-step-final 0 \
+#     --train-shots 10 \
+#     --checkpoint ckpt_o15t \
+#     --transductive
+
+
 way20_params = {
     'n_way': 20,
     'k_shots': 1,
