@@ -19,8 +19,7 @@ class OmniglotModel(nn.Module):
             *conv_block(64)
         )
         self.linear = nn.Sequential(
-            nn.Linear(256, n_classes),
-            nn.LogSoftmax(1)
+            nn.Linear(256, n_classes)
         )
         
     def forward(self, x):
