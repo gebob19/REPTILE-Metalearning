@@ -159,11 +159,14 @@ def main():
                 if w.grad is None:
                     w.grad = Variable(torch.zeros_like(w)).to(device)
                 # invert loss eqn. to use descent optimization
-                w.grad.data.add_(w.data - w_t.data)
+                w.grad.data.add_(-w_t.data)
+
 
         # update model with avg over mini batches 
         for w in model.parameters():
             w.grad.data.div_(params['meta_batchsize'])
+            w.grad.data.add_(w.data)
+        
         outter_loop_optim.step()
 
         # evaluation
