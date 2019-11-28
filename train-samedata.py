@@ -169,7 +169,7 @@ class Iter:
         if self.count == self.max - 1:
             raise StopIteration
 
-        print('reading... {}'.format(self.path + self.suffix + str(self.count)))
+        # print('reading... {}'.format(self.path + self.suffix + str(self.count)))
         with open(self.path + self.suffix + str(self.count), "rb") as f:   
             self.count += 1
             data = pickle.load(f)
