@@ -252,7 +252,7 @@ def main():
         for meta_task_x, meta_task_y in zip(train_inputs, train_labels):    
             for x, y in zip(meta_task_x, meta_task_y):
                 session.run(model.minimize_op, feed_dict={model.input_ph: x,
-                                                        model.label_ph: y})
+                                                          model.label_ph: y})
 
             meta_models.append(model_state.export_variables())
             model_state.import_variables(base_model)
@@ -268,7 +268,7 @@ def main():
                 for i, (meta_task_x, meta_task_y, test_x, test_y) in enumerate(loader):
                     for x, y in zip(meta_task_x, meta_task_y):
                         session.run(model.minimize_op, feed_dict={model.input_ph: x,
-                                                                model.label_ph: y})
+                                                                 model.label_ph: y})
 
                     ypred, loss = session.run([model.predictions, model.loss], 
                                             feed_dict={model.input_ph: test_x, 
@@ -279,6 +279,8 @@ def main():
                     writer.add_scalar('{}_loss'.format(name), loss.mean(), outer_i)
                     writer.add_scalar('{}_acc'.format(name), accuracy, outer_i)
                     break
+                
+                full_state.import_variables(base_model)
 
     # evaluate on test 
     n_correct = 0
