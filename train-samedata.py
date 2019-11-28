@@ -240,6 +240,10 @@ def main():
         model_name = model_name + "_" +str(np.random.randint(100000))
 
     for outer_i, (train_inputs, train_labels) in tqdm(enumerate(Iter('./train/', 'training', train=True))):
+
+        if args.debug and outer_i == args.n_iterations - 1:
+            break 
+
         frac_done = outer_i / params['outer_iterations']
         cur_meta_step_size = frac_done * params['metastep_final'] + (1 - frac_done) * params['outer_lr']
         
