@@ -298,6 +298,7 @@ def main():
         
         n_correct += bn_correct
         n_examples += bn_examples
+        break
 
     accuracy = n_correct / n_examples
 
