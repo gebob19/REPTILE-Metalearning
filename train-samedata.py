@@ -274,6 +274,7 @@ def main():
                     
                     writer.add_scalar('{}_loss'.format(name), loss.mean(), outer_i)
                     writer.add_scalar('{}_acc'.format(name), accuracy, outer_i)
+                    break
 
     # evaluate on test 
     n_correct = 0
