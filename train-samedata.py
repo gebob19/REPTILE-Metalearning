@@ -434,9 +434,9 @@ def main():
     # writer.close()
     # print('Summary writer closed...')
  
-    print('saving model to {} ...'.format('model_saves/'+model_name))
-    torch.save(model.state_dict(), 'model_saves/'+model_name)
-    torch.save(inner_loop_optim.state_dict(), 'model_saves/'+model_name+'_optim')
+    # print('saving model to {} ...'.format('model_saves/'+model_name))
+    # torch.save(model.state_dict(), 'model_saves/'+model_name)
+    # torch.save(inner_loop_optim.state_dict(), 'model_saves/'+model_name+'_optim')
 
 if __name__ == '__main__':
     main()
