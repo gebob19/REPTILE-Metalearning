@@ -279,14 +279,18 @@ def main():
                     writer.add_scalar('{}_loss'.format(name), loss.mean(), outer_i)
                     writer.add_scalar('{}_acc'.format(name), accuracy, outer_i)
                     break
-                
+
                 full_state.import_variables(base_model)
 
     # evaluate on test 
     n_correct = 0
     n_examples = 0
+    base_model = full_state.export_variables()
+
     for i, (meta_task_x, meta_task_y, test_x, test_y) in tqdm(enumerate(Iter('./evaluation/test/', '', False))):
-        base_model = full_state.export_variables()
+
+        full_state.import_variables(base_model)
+
         for x, y in zip(meta_task_x, meta_task_y):
             session.run(model.minimize_op, feed_dict={model.input_ph: x,
                                                     model.label_ph: y})
@@ -300,7 +304,6 @@ def main():
         
         n_correct += bn_correct
         n_examples += bn_examples
-        break
 
     accuracy = n_correct / n_examples
 
