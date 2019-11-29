@@ -122,6 +122,8 @@ class OmniLoader(data.DataLoader):
         x = D.contiguous().view((D.size(0) * D.size(1), 1, 28, 28)).to(device)
         y = torch.from_numpy(np.array([[i] * D.size(1) for i in range(self.n_way)]).flatten()).to(device)
         
+        assert x.size(0) == y.size(0)
+
         # shuffle 
         if self.shuffle: 
             x, y = self.shuffle_set(x, y)
@@ -141,6 +143,10 @@ class OmniLoader(data.DataLoader):
             
             idx = torch.randperm(self.n_way * self.n_test)
             x_test, y_test = k_test_data.reshape(-1, 1, 28, 28)[idx], k_test_labels.reshape(-1)[idx]
+
+            train = (v.numpy().squeeze() for v in [x_train, y_train])
+            test = (v.numpy().squeeze() for v in [x_test, y_test])
             
-            yield (x_train.to(device), y_train.to(device)), (x_test.to(device), y_test.to(device))
+            yield train, test
+            # yield (x_train.to(device), y_train.to(device)), (x_test.to(device), y_test.to(device))
 
