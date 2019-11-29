@@ -119,8 +119,8 @@ class OmniLoader(data.DataLoader):
         """
         # Train: n * k_shot 
         # Test:  n * (n_examples - k_shot)
-        x = D.contiguous().view((D.size(0) * D.size(1), 1, 28, 28)).to(device)
-        y = torch.from_numpy(np.array([[i] * D.size(1) for i in range(self.n_way)]).flatten()).to(device)
+        x = D.contiguous().view((D.size(0) * D.size(1), 1, 28, 28))#.to(device)
+        y = torch.from_numpy(np.array([[i] * D.size(1) for i in range(self.n_way)]).flatten())#.to(device)
         
         assert x.size(0) == y.size(0)
 
