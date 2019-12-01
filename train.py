@@ -182,6 +182,9 @@ def main():
     params = way20_params
     param_name = args.name
 
+    print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
+    tf.debugging.set_log_device_placement(True)
+
     # init model + optimzers + loss 
     model = TFOmniglotModel(params['n_way'], params['inner_lr'])
     session = tf.Session()
