@@ -215,7 +215,7 @@ def main():
 
     train_eval_loader = get_dataloader('train', params['k_shots'], params['n_way'])
     val_loader = get_dataloader('val', params['k_shots'], params['n_way'])
-    test_loader = get_dataloader('test', params['k_shots'], params['n_way'], inf=False)
+    test_loader = get_dataloader('test', params['k_shots'], params['n_way'])
 
     for outer_i in tqdm(range(params['outer_iterations'])):
 
@@ -318,6 +318,9 @@ def main():
         
         n_correct += bn_correct
         n_examples += bn_examples
+
+        if task_i == 10000 - 1: 
+            break
 
         # # validation metrics
         # new_model.eval()

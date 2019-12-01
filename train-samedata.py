@@ -95,6 +95,7 @@ def arg_parser():
 #         if name in ['val', 'train']:
 #             writer.add_scalar('{}_loss'.format(name), loss, outer_i)
 #             writer.add_scalar('{}_acc'.format(name), accuracy, outer_i)
+
 def interpolate_vars(old_vars, new_vars, epsilon):
     """
     Interpolate between two sequences of variables.
@@ -191,9 +192,7 @@ def main():
     model_state = VariableState(session, tf.trainable_variables())
     # model + optimize params 
     full_state = VariableState(session, tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES))
-
     session.run(tf.global_variables_initializer())
-
 
     # outter_loop_optim = torch.optim.SGD(model.parameters(), lr=params['outer_lr'])
     # loss_fcn = nn.CrossEntropyLoss()
