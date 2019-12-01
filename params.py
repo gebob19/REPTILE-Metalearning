@@ -41,6 +41,7 @@ way20_params = {
     'k_shots': 1,
     'n_test': 1,
     # inner loop parameters
+    'train_shots': 10,
     'inner_lr': 0.0005,
     'inner_batchsize': 20,
     'inner_iterations': 10,

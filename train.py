@@ -179,7 +179,7 @@ def main():
     debug = True
 
     args = arg_parser()
-    params = way5_params
+    params = way20_params
     param_name = args.name
 
     # init model + optimzers + loss 
