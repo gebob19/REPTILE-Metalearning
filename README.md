@@ -7,22 +7,6 @@
 - Blog Post: https://openai.com/blog/reptile/ 
 - Code: https://github.com/openai/supervised-reptile
 
-## 2K Iterations Final Accuracy
-
-### 20way - 1shot
-<img src="2K-itr-run/20way-1shot & 5way-1shot/20way-1shot-res.png" width="500">
-
-### 5way - 1shot
-<img src="2K-itr-run/20way-1shot & 5way-1shot/5way-1shot-res.png" width="500">
-
-## Accuracy & Loss Curves 
-
-### Training
-<img src="2K-itr-run/20way-1shot & 5way-1shot/test-acc-loss.png" width="500">
-
-### Validation
-<img src="2K-itr-run/20way-1shot & 5way-1shot/train-acc-loss.png" width="500">
-
 ## Related Papers:
 
 MAML (parent paper)
